@@ -66,6 +66,23 @@ final class CameraService: NSObject, CameraServiceProtocol {
         captureSession.commitConfiguration()
     }
     
+    func configureSessionForDepth() {
+        guard let photoOutput = self.photoOutput else {
+            return
+        }
+        
+        if photoOutput.isDepthDataDeliverySupported {
+            photoOutput.isDepthDataDeliveryEnabled = true
+            print("DepthDataDelivery ENABLED")
+        }
+        
+        if photoOutput.isPortraitEffectsMatteDeliverySupported {
+            photoOutput.isPortraitEffectsMatteDeliveryEnabled = true
+            photoOutput.enabledSemanticSegmentationMatteTypes = [.hair]
+            print("PortraitEffectsMatteDelivery ENABLED")
+        }
+    }
+    
     func startSession() async {
         await withCheckedContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
@@ -111,6 +128,16 @@ final class CameraService: NSObject, CameraServiceProtocol {
         layer.videoGravity = .resizeAspectFill
         self.videoPreviewLayer = layer
         return layer
+    }
+    
+    /// Gets the last captured photo's portrait effects matte as CIImage
+    func getSegmentationMatteForHair() -> CIImage? {
+        guard let photo = lastCapturedPhoto,
+              let semanticRaw = photo.semanticSegmentationMatte(for: .hair) else {
+            return nil
+        }
+        
+        return CIImage(semanticSegmentationMatte: semanticRaw)
     }
 }
 

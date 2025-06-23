@@ -23,6 +23,9 @@ protocol CameraServiceProtocol {
     /// Stops the camera session
     func stopSession() async
     
+    /// Sets up the session for depth features
+    func configureSessionForDepth()
+    
     /// Gets the current authorization status
     func authorizationStatus() -> AVAuthorizationStatus
     

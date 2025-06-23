@@ -17,10 +17,17 @@ final class DependencyContainer: ObservableObject {
     // MARK: - Services
     lazy var permissionManager = PermissionManager()
     lazy var cameraService = CameraService()
+    lazy var imageProcessingService: ImageProcessingProtocol = {
+        return ImageProcessingService(cameraService: cameraService)
+    }()
     
     // MARK: - Use Cases
     lazy var capturePhotoUseCase: CapturePhotoUseCaseProtocol = {
         return CapturePhotoUseCase(cameraService: cameraService)
+    }()
+    
+    lazy var extractHairMaskUseCase: ExtractHairMaskUseCaseProtocol = {
+        return ExtractHairMaskUseCase(imageProcessor: imageProcessingService)
     }()
     
     // MARK: - ViewModels
@@ -28,7 +35,8 @@ final class DependencyContainer: ObservableObject {
         return CameraViewModel(
             capturePhotoUseCase: capturePhotoUseCase,
             cameraService: cameraService,
-            permissionManager: permissionManager
+            permissionManager: permissionManager,
+            extractHairMaskUseCase: extractHairMaskUseCase
         )
     }
     
