@@ -30,13 +30,18 @@ final class DependencyContainer: ObservableObject {
         return ExtractHairMaskUseCase(imageProcessor: imageProcessingService)
     }()
     
+    lazy var detectEyesUseCase: DetectEyesUseCaseProtocol = {
+        return DetectEyesUseCase(imageProcessingService: imageProcessingService)
+    }()
+    
     // MARK: - ViewModels
     func makeCameraViewModel() -> CameraViewModel {
         return CameraViewModel(
             capturePhotoUseCase: capturePhotoUseCase,
             cameraService: cameraService,
             permissionManager: permissionManager,
-            extractHairMaskUseCase: extractHairMaskUseCase
+            extractHairMaskUseCase: extractHairMaskUseCase,
+            detectEyesUseCase: detectEyesUseCase
         )
     }
     

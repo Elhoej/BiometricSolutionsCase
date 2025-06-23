@@ -82,9 +82,9 @@ struct CameraView: View {
             }
         }
         .sheet(isPresented: $viewModel.showingResult) {
-            if let hairMask = viewModel.capturedHairMask {
+            if let analyzedPhoto = viewModel.analyzedPhoto {
                 PhotoResultView(
-                    hairMask: hairMask,
+                    analyzedPhoto: analyzedPhoto,
                     onDismiss: viewModel.dismissResult
                 )
             }

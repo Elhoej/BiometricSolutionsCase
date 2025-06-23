@@ -17,4 +17,7 @@ struct HairSegmentationResult {
 protocol ImageProcessingProtocol {
     /// Extracts hair segmentation from an image
     func extractHairSegmentation(from image: UIImage) async throws -> HairSegmentationResult
+    
+    /// Detects eyes in an image and calculates distance if both eyes are found
+    func detectEyes(in image: UIImage) async throws -> EyeDetectionResult
 }

@@ -9,18 +9,24 @@ import Foundation
 import UIKit
 
 /// Represents a hair mask extracted from a photo
-struct HairMask: Identifiable {
+struct AnalyzedPhoto: Identifiable {
     let id: UUID
     let originalPhoto: CapturedPhoto
-    let maskImage: UIImage
+    let hairMask: HairMask
+    let processedAt: Date
+    let eyeDetectionResult: EyeDetectionResult?
     
     init(
         id: UUID = UUID(),
         originalPhoto: CapturedPhoto,
-        maskImage: UIImage
+        hairMask: HairMask,
+        processedAt: Date = Date(),
+        eyeDetectionResult: EyeDetectionResult? = nil
     ) {
         self.id = id
         self.originalPhoto = originalPhoto
-        self.maskImage = maskImage
+        self.hairMask = hairMask
+        self.processedAt = processedAt
+        self.eyeDetectionResult = eyeDetectionResult
     }
 }
