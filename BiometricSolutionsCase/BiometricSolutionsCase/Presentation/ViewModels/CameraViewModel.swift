@@ -18,7 +18,7 @@ final class CameraViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: AppError?
     @Published var showingResult = false
-    @Published var capturedHairMask: HairMask?
+    @Published var analyzedPhoto: AnalyzedPhoto?
     @Published var cameraPermissionStatus: AVAuthorizationStatus = .notDetermined
     
     // MARK: - Dependencies
@@ -26,21 +26,21 @@ final class CameraViewModel: ObservableObject {
     private let cameraService: CameraServiceProtocol
     private let permissionManager: PermissionManager
     private let extractHairMaskUseCase: ExtractHairMaskUseCaseProtocol
-    
-    // MARK: - Private Properties
-    private var cancellables = Set<AnyCancellable>()
+    private let detectEyesUseCase: DetectEyesUseCaseProtocol
     
     // MARK: - Initialization
     init(
         capturePhotoUseCase: CapturePhotoUseCaseProtocol,
         cameraService: CameraServiceProtocol,
         permissionManager: PermissionManager,
-        extractHairMaskUseCase: ExtractHairMaskUseCaseProtocol
+        extractHairMaskUseCase: ExtractHairMaskUseCaseProtocol,
+        detectEyesUseCase: DetectEyesUseCaseProtocol
     ) {
         self.capturePhotoUseCase = capturePhotoUseCase
         self.cameraService = cameraService
         self.permissionManager = permissionManager
         self.extractHairMaskUseCase = extractHairMaskUseCase
+        self.detectEyesUseCase = detectEyesUseCase
         
         setupBindings()
     }
@@ -81,16 +81,18 @@ final class CameraViewModel: ObservableObject {
             // Extract hair mask
             var hairMask = try await extractHairMaskUseCase.execute(from: photo)
             
+            // Detect eyes
+            let eyeDetectionResult = try await detectEyesUseCase.execute(in: photo.image)
+            
             // Create hair mask object
-            hairMask = HairMask(
-                id: hairMask.id,
-                originalPhoto: hairMask.originalPhoto,
-                maskImage: hairMask.maskImage,
-                processedAt: hairMask.processedAt
+            analyzedPhoto = AnalyzedPhoto(
+                originalPhoto: photo,
+                hairMask: hairMask,
+                eyeDetectionResult: eyeDetectionResult
             )
             
             // Update state
-            capturedHairMask = hairMask
+            analyzedPhoto = analyzedPhoto
             showingResult = true
         } catch let appError as AppError {
             self.error = appError
@@ -102,7 +104,7 @@ final class CameraViewModel: ObservableObject {
     /// Dismisses the result view
     func dismissResult() {
         showingResult = false
-        capturedHairMask = nil
+        analyzedPhoto = nil
     }
     
     /// Stops the camera session

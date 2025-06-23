@@ -9,7 +9,7 @@ import SwiftUI
 
 /// View displaying the captured photo with hair mask overlay
 struct PhotoResultView: View {
-    let hairMask: HairMask
+    let analyzedPhoto: AnalyzedPhoto
     let onDismiss: () -> Void
     
     @State private var showMask = true
@@ -26,14 +26,14 @@ struct PhotoResultView: View {
                     GeometryReader { geometry in
                         ZStack {
                             // Original photo
-                            Image(uiImage: hairMask.originalPhoto.image)
+                            Image(uiImage: analyzedPhoto.originalPhoto.image)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
                             
                             // Hair mask overlay
                             if showMask {
-                                Image(uiImage: hairMask.maskImage)
+                                Image(uiImage: analyzedPhoto.hairMask.maskImage)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
@@ -72,6 +72,40 @@ struct PhotoResultView: View {
                             }
                             .padding(.horizontal)
                         }
+                        
+                        // Eye detection results
+                        if let eyeDetection = analyzedPhoto.eyeDetectionResult {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Eye Detection")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                
+                                HStack {
+                                    Image(systemName: eyeDetection.status == .bothEyesDetected ? "eye.fill" :
+                                                     eyeDetection.status == .oneEyeDetected ? "eye.slash" : "eye.slash.fill")
+                                        .foregroundColor(eyeDetection.status == .bothEyesDetected ? .green : .orange)
+                                    
+                                    Text(eyeDetection.statusMessage)
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                }
+                                
+                                if let distance = eyeDetection.formattedDistance {
+                                    HStack {
+                                        Image(systemName: "ruler")
+                                            .foregroundColor(.cyan)
+                                        Text("Eye distance: \(distance)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(Color.black.opacity(0.3))
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                        }
+                        
                         Spacer()
                     }
                     .padding(.vertical, 20)
